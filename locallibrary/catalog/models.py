@@ -31,7 +31,7 @@ class Author(models.Model):
         return reverse('author-detail', args=[str(self.id)])
 
     def __str__(self):
-        return f"{self.last_name}, {self.last_name}"
+        return f"{self.last_name}, {self.first_name}"
 
 class Language(models.Model):
     """Model representing the original language a book was written in"""
@@ -66,6 +66,12 @@ class Book(models.Model):
 
     def get_absolute_utl(self):
         return reverse('book-detail', args=[str(self.id)])
+
+    def display_genre(self):
+        """Create a string for the Genre. This is required to display genre in Admin."""
+        return ', '.join(genre.name for genre in self.genre.all()[:3])
+
+    display_genre.short_description = 'Genre'
 
 class BookInstance(models.Model):
     """Model representing a specific instance of a book"""
