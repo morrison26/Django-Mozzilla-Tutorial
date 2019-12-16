@@ -1,8 +1,13 @@
-from django.shortcuts import render
+import datetime
+
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from catalog.models import Book, Author, BookInstance, Genre
+from catalog.forms import RenewBookForm
 
 class BookListView(generic.ListView):
     model = Book
@@ -60,3 +65,27 @@ def index(request):
 
     #Render the HTML template index.html with the data in the context variable
     return render(request, 'index.html', context = context)
+
+def renew_book_librarian(request, pk):
+    book_instance = get_object_or_404(BookInstance, pk=pk)
+
+    if request.method == "POST":
+
+        form = RenewBookForm(request.POST)
+
+        if form.is_valid():
+            book_instance.due_back = form.cleaned_data['renewal_date']
+            book_instance.save()
+
+            return HttpResponseRedirect(reverse('all-borrowed'))
+
+    else:
+        proposed_renewal_date = datetime.date.today() + datetime.timedelta(weeks=3)
+        form = RenewBookForm(initial={'renewal-date': proposed_renewal_date})
+
+    context = {
+          'form': form
+        , 'book_instance': book_instance
+    }
+
+    return render(request, 'catalog/book_renew_librarian.html', context)
