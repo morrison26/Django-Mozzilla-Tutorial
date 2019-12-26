@@ -24,10 +24,10 @@ class AuthorListView(generic.ListView):
 class AuthorDetailView(generic.DetailView):
     model = Author
 
-class LoanedBooksByUserListView(generic.ListView):
+class LoanedBooksByUserListView(LoginRequiredMixin ,generic.ListView):
     model = BookInstance
     template_name = 'catalog/bookinstance_list_borrowed_user.html'
-    paginate_by = 10
+    paginate_by = 5
 
     def get_queryset(self):
         return BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='o').order_by("due_back")
@@ -36,7 +36,7 @@ class AllLoanedBooksListView(PermissionRequiredMixin, generic.ListView):
     permission_required = 'catalog.can_mark_returned'
     model = BookInstance
     template_name = 'catalog/bookinstance_all_loaned_books.html'
-    paginate_by=10
+    paginate_by=5
 
     def get_queryset(self):
         return BookInstance.objects.filter(status__exact='o')
@@ -85,7 +85,7 @@ def renew_book_librarian(request, pk):
 
     else:
         proposed_renewal_date = datetime.date.today() + datetime.timedelta(weeks=3)
-        form = RenewBookForm(initial={'renewal-date': proposed_renewal_date})
+        form = RenewBookForm(initial={'renewal_date': proposed_renewal_date})
 
     context = {
           'form': form

@@ -4,3 +4,7 @@
   list-style: none;
   /* font-family: Impact, Charcoal, sans-serif; */
 }
+img {
+  max-width: 200px;
+  max-height: 200px;
+}
